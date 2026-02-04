@@ -9,12 +9,21 @@ from backend.config import GOOGLE_API_KEY
 from backend.rag.vectorstore import get_retriever
 
 
-llm = ChatGoogleGenerativeAI(
+def get_llm():
+    return ChatGoogleGenerativeAI(
+        model="gemini-2.5-flash",
+        temperature=0.1,
+        max_output_tokens=512,
+        )
+
+
+
+'''ChatGoogleGenerativeAI(
     model="gemini-2.5-flash",
     temperature=0.1,
     #max_output_tokens=512,
     google_api_key=GOOGLE_API_KEY,
-)
+)'''
 
 prompt = ChatPromptTemplate.from_template(
 """
@@ -43,7 +52,7 @@ def get_rag_chain():
             "question": RunnablePassthrough(),
         }
         | prompt
-        | llm
+        | get_llm
         | StrOutputParser()
     )
 

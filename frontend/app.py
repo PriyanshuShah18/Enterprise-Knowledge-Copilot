@@ -1,8 +1,13 @@
 import streamlit as st
 import requests
+import os
 
 # ---------------- CONFIG ----------------
-API_BASE_URL = "http://127.0.0.1:8000"
+API_BASE_URL = os.getenv(
+    "API_BASE_URL",
+    "http://127.0.0.1:8000"  # local fallback
+)
+st.write("API_BASE_URL =", API_BASE_URL)
 
 st.set_page_config(
     page_title="Enterprise Knowledge Copilot",
@@ -37,28 +42,29 @@ with st.sidebar:
     if uploaded_file:
         with st.spinner("Uploading & indexing documents..."):
             files_payload = [
-            ("files", (file.name, file.getvalue(), file.type))
-            for file in uploaded_file
-        ]
+                ("files", (file.name, file.getvalue(), file.type))
+                for file in uploaded_file
+            ]
 
-        response = requests.post(
-            f"{API_BASE_URL}/upload",
-            files=files_payload,
-            timeout=300,
-        )
+            try:
+                response = requests.post(
+                    f"{API_BASE_URL}/upload",
+                    files=files_payload,
+                    timeout=300,
+                )
+            except requests.exceptions.RequestException:
+                st.error("❌ Backend is unreachable. Please try again later.")
+                st.stop()
 
-        if response.status_code == 200:
-            st.success("✅ Documents uploaded successfully")
-            st.session_state.documents_uploaded = True
-        else:
-            st.error("❌ Upload failed")
-
+            if response.status_code == 200:
+                st.success("✅ Documents uploaded successfully")
+                st.session_state.documents_uploaded = True
+            else:
+                st.error("❌ Upload failed")
 
 # ---------------- HEADER ----------------
 st.title("📄 Enterprise Knowledge Copilot")
-st.caption(
-    "Ask questions from uploaded documents • RAG-based"
-)
+st.caption("Ask questions from uploaded documents • RAG-based")
 st.divider()
 
 # ---------------- CHAT DISPLAY ----------------
@@ -73,19 +79,23 @@ if user_query:
     if not st.session_state.documents_uploaded:
         st.warning("⚠️ Please upload at least one document first.")
     else:
-        # Show user message
+        # User message
         st.session_state.chat_history.append(("user", user_query))
         with st.chat_message("user"):
             st.write(user_query)
 
-        # Call backend
+        # Backend call
         with st.chat_message("assistant"):
             with st.spinner("Thinking..."):
-                response = requests.post(
-                    f"{API_BASE_URL}/chat",
-                    params={"query": user_query},
-                    timeout=120,
-                )
+                try:
+                    response = requests.post(
+                        f"{API_BASE_URL}/chat",
+                        params={"query": user_query},
+                        timeout=120,
+                    )
+                except requests.exceptions.RequestException:
+                    st.error("❌ Backend is unreachable. Please try again later.")
+                    st.stop()
 
                 if response.status_code == 200:
                     answer = response.json().get("answer", "")
@@ -94,7 +104,6 @@ if user_query:
 
                 st.write(answer)
 
-        # Save assistant response
         st.session_state.chat_history.append(("assistant", answer))
 
 # ---------------- FOOTER ----------------
