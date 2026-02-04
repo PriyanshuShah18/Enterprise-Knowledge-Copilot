@@ -1,0 +1,10 @@
+# Python
+__pycache__/
+*.pyc
+
+# Env
+.env
+env/
+
+# Uploads / data (if not meant for GitHub)
+data/

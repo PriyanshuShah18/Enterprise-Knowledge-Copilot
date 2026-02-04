@@ -1,0 +1,21 @@
+
+
+# Test imports folder
+test_imports/
+
+# Requirements file
+requirements.txt
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+
+
+
+# Env
+.env
+env/
+
+# Uploads / data (if not meant for GitHub)
+data/
