@@ -7,7 +7,7 @@ API_BASE_URL = os.getenv(
     "API_BASE_URL",
     "http://127.0.0.1:8000"  # local fallback
 )
-st.write("API_BASE_URL =", API_BASE_URL)
+#st.write("API_BASE_URL =", API_BASE_URL)
 
 st.set_page_config(
     page_title="Enterprise Knowledge Copilot",
