@@ -9,3 +9,7 @@ faiss-cpu
 pypdf
 docx2txt
 python-multipart
+langchain-huggingface
+sentence-transformers
+pydantic
+python-multipart
