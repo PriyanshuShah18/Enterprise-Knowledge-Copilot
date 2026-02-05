@@ -1,19 +1,17 @@
+--extra-index-url https://download.pytorch.org/whl/cpu
+
 fastapi
 uvicorn
-
 langchain
 langchain-community
 langchain-google-genai
 langchain-huggingface
 google-generativeai
-
 sentence-transformers
 faiss-cpu
-
 pypdf
 docx2txt
 python-multipart
-
 pydantic
+torch==2.10.0+cpu
 
-torch
