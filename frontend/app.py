@@ -7,7 +7,6 @@ API_BASE_URL = os.getenv(
     "API_BASE_URL",
     "http://127.0.0.1:8000"  # local fallback
 )
-#st.write("API_BASE_URL =", API_BASE_URL)
 
 st.set_page_config(
     page_title="Enterprise Knowledge Copilot",
@@ -22,6 +21,10 @@ if "chat_history" not in st.session_state:
 if "documents_uploaded" not in st.session_state:
     st.session_state.documents_uploaded = False
 
+# 🔑 NEW: prevents infinite re-upload
+if "upload_done" not in st.session_state:
+    st.session_state.upload_done = False
+
 # ---------------- SIDEBAR ----------------
 with st.sidebar:
     st.title("⚙️ Controls")
@@ -33,17 +36,18 @@ with st.sidebar:
     st.markdown("---")
     st.markdown("### 📂 Upload Documents")
 
-    uploaded_file = st.file_uploader(
+    uploaded_files = st.file_uploader(
         "Upload one or more documents",
         type=["pdf", "txt", "docx"],
         accept_multiple_files=True,
     )
 
-    if uploaded_file:
+    # 🔒 Upload only once per session
+    if uploaded_files and not st.session_state.upload_done:
         with st.spinner("Uploading & indexing documents..."):
             files_payload = [
                 ("files", (file.name, file.getvalue(), file.type))
-                for file in uploaded_file
+                for file in uploaded_files
             ]
 
             try:
@@ -57,10 +61,15 @@ with st.sidebar:
                 st.stop()
 
             if response.status_code == 200:
-                st.success("✅ Documents uploaded successfully")
+                st.success("✅ Documents uploaded & indexed")
                 st.session_state.documents_uploaded = True
+                st.session_state.upload_done = True
+                st.rerun()
             else:
                 st.error("❌ Upload failed")
+
+    if st.session_state.documents_uploaded:
+        st.info("📄 Documents are ready. Ask questions below.")
 
 # ---------------- HEADER ----------------
 st.title("📄 Enterprise Knowledge Copilot")
@@ -109,6 +118,6 @@ if user_query:
 # ---------------- FOOTER ----------------
 st.divider()
 st.markdown(
-    "<center><small>🔒 Privacy-first • FastAPI + Gemini • RAG Architecture</small></center>",
+    "<center><small>🔒 Privacy-first • FastAPI + RAG Architecture</small></center>",
     unsafe_allow_html=True,
 )
