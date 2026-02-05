@@ -9,7 +9,7 @@ from backend.rag.vectorstore import get_retriever
 
 # -------- LLM (instantiate ONCE) --------
 llm = ChatGoogleGenerativeAI(
-    model="gemini-2.5-flash",
+    model="gemini-2.5-flash-lite",
     temperature=0.1,
     max_output_tokens=512,
     google_api_key=GOOGLE_API_KEY,
